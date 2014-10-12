@@ -1,0 +1,33 @@
+﻿<Page
+    x:Class="HttpRequester.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:HttpRequester"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Pivot x:Uid="Pivot" Title="HTTP REQUESTER" x:Name="pivot" CommonNavigationTransitionInfo.IsStaggerElement="True">
+            <PivotItem x:Uid="pvtiMain" x:Name="pvtiMain"
+                       Margin="19,14.5,0,0"
+                       Header="main"
+                       DataContext="{Binding}">
+                <StackPanel>
+                    <TextBox Header="Url" Text="{Binding Url, Mode=TwoWay}" />
+                    <ComboBox x:Name="cbxRequestType" SelectedItem="{Binding Path=RequestType, Mode=TwoWay}" />
+                    <Button Content="Send" x:Name="btnSend" x:Uid="btnSend" Click="btnSend_Click" />
+                </StackPanel>
+            </PivotItem>
+
+            <PivotItem x:Uid="pvtiParameters" x:Name="pvtiParameters"
+                       Margin="19,14.5,0,0"
+                       Header="parameters">
+                <StackPanel>
+
+                </StackPanel>
+            </PivotItem>
+        </Pivot>
+    </Grid>
+</Page>
