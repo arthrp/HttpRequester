@@ -16,6 +16,7 @@
                        DataContext="{Binding}">
                 <StackPanel>
                     <TextBox Header="Url" Text="{Binding Url, Mode=TwoWay}" />
+                    <TextBox Header="User agent" Text="{Binding UserAgent, Mode=TwoWay}" />
                     <ComboBox x:Name="cbxRequestType" SelectedItem="{Binding Path=RequestType, Mode=TwoWay}" />
                     <Button Content="Send" x:Name="btnSend" x:Uid="btnSend" Click="btnSend_Click" />
                 </StackPanel>

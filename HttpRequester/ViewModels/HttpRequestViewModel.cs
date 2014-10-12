@@ -20,6 +20,7 @@ namespace HttpRequester.ViewModels
         {
             _httpClient.MaxResponseContentBufferSize = 512000;
             _httpClient.DefaultRequestHeaders.Add("user-agent", DEFAULT_USER_AGENT);
+            UserAgent = DEFAULT_USER_AGENT;
         }
 
         private readonly HttpClient _httpClient = new HttpClient();
@@ -67,6 +68,7 @@ namespace HttpRequester.ViewModels
         public async Task<string> GetServerResponse()
         {
             ValidateFields();
+            UpdateRequestHeaders(_httpClient);
 
             StringBuilder res = new StringBuilder();
             HttpResponseMessage response;
@@ -94,6 +96,13 @@ namespace HttpRequester.ViewModels
         {
             if (string.IsNullOrEmpty(Url))
                 throw new ArgumentException("Url cannot be empty");
+            if (string.IsNullOrEmpty(UserAgent))
+                throw new ArgumentException("Please specify user agent");
+        }
+
+        private void UpdateRequestHeaders(HttpClient httpClient)
+        {
+            httpClient.DefaultRequestHeaders.AddOrUpdate("user-agent", UserAgent);
         }
     }
 
