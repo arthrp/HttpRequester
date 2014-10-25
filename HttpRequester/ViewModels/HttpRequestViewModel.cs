@@ -9,6 +9,7 @@ using System.Net.Http;
 using HttpRequester.Enums;
 using Windows.ApplicationModel.DataTransfer;
 using System.Net.Http.Headers;
+using System.Collections.ObjectModel;
 
 namespace HttpRequester.ViewModels
 {
@@ -16,11 +17,16 @@ namespace HttpRequester.ViewModels
     {
         private const string DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)";
 
+        public static readonly HttpRequestViewModel Instance = new HttpRequestViewModel();
+
         public HttpRequestViewModel()
         {
             _httpClient.MaxResponseContentBufferSize = 512000;
             _httpClient.DefaultRequestHeaders.Add("user-agent", DEFAULT_USER_AGENT);
             UserAgent = DEFAULT_USER_AGENT;
+
+            Parameters = new ObservableCollection<HttpParameterModel>();
+            Parameters.Add(new HttpParameterModel() { Name = "Test", Value = "true" });
         }
 
         private readonly HttpClient _httpClient = new HttpClient();
@@ -62,6 +68,8 @@ namespace HttpRequester.ViewModels
                 NotifyPropertyChanged();
             }
         }
+
+        public ObservableCollection<HttpParameterModel> Parameters { get; set; }
         
         #endregion
 
@@ -90,6 +98,13 @@ namespace HttpRequester.ViewModels
             res.AppendLine(response.Content.ReadAsStringAsync().Result);
 
             return res.ToString();
+        }
+
+        public HttpParameterModel GetModelByParamName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return new HttpParameterModel();
+            return Parameters.Single(p => p.Name == name);
         }
 
         private void ValidateFields()

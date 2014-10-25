@@ -22,9 +22,6 @@ using Windows.UI.Xaml.Navigation;
 
 namespace HttpRequester
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         private HttpRequestViewModel _viewModel;
@@ -36,7 +33,7 @@ namespace HttpRequester
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
             _navigationHelper = new NavigationHelper(this);
-            _viewModel = new HttpRequestViewModel();
+            new HttpRequestViewModel();
 
             cbxRequestType.ItemsSource = Enum.GetValues(typeof(RequestTypeEnum)).Cast<RequestTypeEnum>();
 
@@ -55,7 +52,13 @@ namespace HttpRequester
             // If you are using the NavigationHelper provided by some templates,
             // this event is handled for you.
 
-            DataContext = _viewModel;
+            DataContext = HttpRequestViewModel.Instance;
+            _navigationHelper.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         private async void btnSend_Click(object sender, RoutedEventArgs e)
@@ -64,7 +67,7 @@ namespace HttpRequester
             string exceptionMsg = null;
             try
             {
-                response = await _viewModel.GetServerResponse();
+                response = await HttpRequestViewModel.Instance.GetServerResponse();
             }
             catch (ArgumentException ex)
             {
@@ -82,6 +85,12 @@ namespace HttpRequester
             var dialog = new MessageDialog(response, "Response");
 
             await dialog.ShowAsync(); 
+        }
+
+        private void ListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            string itemName = ((HttpParameterModel)e.ClickedItem).Name;
+            Frame.Navigate(typeof(HttpParameterPage), itemName);
         }
 
     }
