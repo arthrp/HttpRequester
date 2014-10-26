@@ -61,7 +61,7 @@ namespace HttpRequester
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             _parameterModel = HttpRequestViewModel.Instance.GetModelByParamName((string)e.NavigationParameter);
-            Debug.WriteLine(_parameterModel.Name);
+            //Debug.WriteLine(_parameterModel.Name);
             DataContext = _parameterModel;
         }
 
@@ -94,7 +94,26 @@ namespace HttpRequester
 
         private void btnDelete_Click(object sender, RoutedEventArgs e)
         {
+            HttpParameterModel existingParam = HttpRequestViewModel.Instance.Parameters.SingleOrDefault(p => p.Name == txtName.Text);
+            if (existingParam != null)
+                HttpRequestViewModel.Instance.Parameters.Remove(existingParam);
 
+            Frame.Navigate(typeof(MainPage));
+        }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            _parameterModel = new HttpParameterModel() { Name = txtName.Text, Value = txtValue.Text };
+            HttpParameterModel existingParam = HttpRequestViewModel.Instance.Parameters.SingleOrDefault(p => p.Name == _parameterModel.Name);
+            if (existingParam == null)
+                HttpRequestViewModel.Instance.Parameters.Add(_parameterModel);
+            else
+            {
+                HttpRequestViewModel.Instance.Parameters.Remove(existingParam);
+                HttpRequestViewModel.Instance.Parameters.Add(_parameterModel);
+            }
+
+            Frame.Navigate(typeof(MainPage));
         }
 
     }

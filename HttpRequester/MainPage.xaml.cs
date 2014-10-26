@@ -93,5 +93,10 @@ namespace HttpRequester
             Frame.Navigate(typeof(HttpParameterPage), itemName);
         }
 
+        private void btnAddParameter_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
     }
 }

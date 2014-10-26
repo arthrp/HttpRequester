@@ -53,6 +53,8 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+                    
+                    <Button Content="Add" Name="btnAddParameter" Click="btnAddParameter_Click" />
                 </StackPanel>
             </PivotItem>
         </Pivot>
