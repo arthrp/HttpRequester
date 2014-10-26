@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -24,7 +25,6 @@ namespace HttpRequester
 {
     public sealed partial class MainPage : Page
     {
-        private HttpRequestViewModel _viewModel;
         private readonly NavigationHelper _navigationHelper;
 
         public MainPage()
@@ -33,7 +33,6 @@ namespace HttpRequester
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
             _navigationHelper = new NavigationHelper(this);
-            new HttpRequestViewModel();
 
             cbxRequestType.ItemsSource = Enum.GetValues(typeof(RequestTypeEnum)).Cast<RequestTypeEnum>();
 
@@ -65,6 +64,7 @@ namespace HttpRequester
         {
             string response = "";
             string exceptionMsg = null;
+
             try
             {
                 response = await HttpRequestViewModel.Instance.GetServerResponse();
@@ -95,7 +95,7 @@ namespace HttpRequester
 
         private void btnAddParameter_Click(object sender, RoutedEventArgs e)
         {
-
+            Frame.Navigate(typeof(HttpParameterPage), null);
         }
 
     }

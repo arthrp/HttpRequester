@@ -10,26 +10,27 @@ using HttpRequester.Enums;
 using Windows.ApplicationModel.DataTransfer;
 using System.Net.Http.Headers;
 using System.Collections.ObjectModel;
+using HttpRequester.Common;
 
 namespace HttpRequester.ViewModels
 {
     public class HttpRequestViewModel : BaseModel
     {
         private const string DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)";
+        private const string JSON_MEDIA_TYPE = "application/json";
 
         public static readonly HttpRequestViewModel Instance = new HttpRequestViewModel();
 
         public HttpRequestViewModel()
         {
-            _httpClient.MaxResponseContentBufferSize = 512000;
-            _httpClient.DefaultRequestHeaders.Add("user-agent", DEFAULT_USER_AGENT);
+            Url = "http://www.example.com";
             UserAgent = DEFAULT_USER_AGENT;
 
             Parameters = new ObservableCollection<HttpParameterModel>();
             Parameters.Add(new HttpParameterModel() { Name = "Test", Value = "true" });
         }
 
-        private readonly HttpClient _httpClient = new HttpClient();
+        //private readonly HttpClient _httpClient = new HttpClient();
 
         #region Properties
 
@@ -76,28 +77,40 @@ namespace HttpRequester.ViewModels
         public async Task<string> GetServerResponse()
         {
             ValidateFields();
-            UpdateRequestHeaders(_httpClient);
+            using (HttpClient httpClient = new HttpClient())
+            {
+                InitializeClientDefaultValues(httpClient);
+                UpdateRequestHeaders(httpClient);
 
-            StringBuilder res = new StringBuilder();
-            HttpResponseMessage response;
+                StringBuilder res = new StringBuilder();
+                HttpResponseMessage response;
 
-            if (RequestType == RequestTypeEnum.GET)
-                response = _httpClient.GetAsync(Url).Result;
-            //else if (RequestType == RequestTypeEnum.POST)
-            //    response = _httpClient.PostAsync(Url).Result;
-            else if (RequestType == RequestTypeEnum.PUT)
-                response = _httpClient.DeleteAsync(Url).Result;
-            else if (RequestType == RequestTypeEnum.DELETE)
-                response = _httpClient.DeleteAsync(Url).Result;
-            else throw new ArgumentException("Unknown request type");
+                if (RequestType == RequestTypeEnum.GET)
+                {
+                    string urlWithParams = ConcatenateParametersToUrl(Url);
+                    response = await Task.Run(() => httpClient.GetAsync(urlWithParams));
+                }
+                else if (RequestType == RequestTypeEnum.POST)
+                {
+                    string requestParams = JSONHelper.Serialize<HttpParameterModel>(Parameters);
+                    httpClient.DefaultRequestHeaders.Accept.Add((new MediaTypeWithQualityHeaderValue(JSON_MEDIA_TYPE)));
+                    response = await Task.Run(() => 
+                        httpClient.PostAsync(Url, new StringContent(requestParams, Encoding.UTF8, JSON_MEDIA_TYPE)));
+                }
+                else if (RequestType == RequestTypeEnum.PUT)
+                    response = await Task.Run(() => httpClient.DeleteAsync(Url));
+                else if (RequestType == RequestTypeEnum.DELETE)
+                    response = await Task.Run(() => httpClient.DeleteAsync(Url));
+                else throw new ArgumentException("Unknown request type");
 
-            res.AppendLine("Status: " + (int)response.StatusCode + " (" + 
-                response.StatusCode.ToString() + ")");
-            res.AppendLine("Content:");
-            string content = await response.Content.ReadAsStringAsync();
-            res.AppendLine(response.Content.ReadAsStringAsync().Result);
+                res.AppendLine("Status: " + (int)response.StatusCode + " (" +
+                    response.StatusCode.ToString() + ")");
+                res.AppendLine("Content:");
+                string content = await response.Content.ReadAsStringAsync();
+                res.AppendLine(response.Content.ReadAsStringAsync().Result);
 
-            return res.ToString();
+                return res.ToString();
+            }
         }
 
         public HttpParameterModel GetModelByParamName(string name)
@@ -113,6 +126,30 @@ namespace HttpRequester.ViewModels
                 throw new ArgumentException("Url cannot be empty");
             if (string.IsNullOrEmpty(UserAgent))
                 throw new ArgumentException("Please specify user agent");
+        }
+
+        private void InitializeClientDefaultValues(HttpClient httpClient)
+        {
+            httpClient.MaxResponseContentBufferSize = 512000;
+            httpClient.DefaultRequestHeaders.Add("user-agent", DEFAULT_USER_AGENT);
+        }
+
+        private string ConcatenateParametersToUrl(string url)
+        {
+            if (Parameters.Count < 1)
+                return url;
+            StringBuilder ret = new StringBuilder(url);
+
+            ret.Append("?");
+            foreach (HttpParameterModel param in Parameters)
+            {
+                ret.Append(param.Name+"="+param.Value);
+                ret.Append("&");
+            }
+
+            ret.Length -= 1;
+
+            return ret.ToString();
         }
 
         private void UpdateRequestHeaders(HttpClient httpClient)
