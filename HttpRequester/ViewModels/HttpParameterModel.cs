@@ -8,6 +8,8 @@ namespace HttpRequester.ViewModels
 {
     public class HttpParameterModel : BaseModel
     {
+        #region Properties
+
         private string _name;
 
         public string Name
@@ -32,6 +34,7 @@ namespace HttpRequester.ViewModels
                 NotifyPropertyChanged(); 
             }
         }
-        
+
+        #endregion
     }
 }

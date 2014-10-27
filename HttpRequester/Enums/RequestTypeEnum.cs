@@ -8,6 +8,6 @@ namespace HttpRequester.Enums
 {
     public enum RequestTypeEnum
     {
-        GET, POST, PUT, DELETE
+        GET, POST, PUT, DELETE, HEAD
     }
 }

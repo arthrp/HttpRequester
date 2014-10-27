@@ -18,6 +18,7 @@ namespace HttpRequester.ViewModels
     {
         private const string DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)";
         private const string JSON_MEDIA_TYPE = "application/json";
+        private const int REQUEST_TIMEOUT_MINUTES = 1;
 
         public static readonly HttpRequestViewModel Instance = new HttpRequestViewModel();
 
@@ -77,7 +78,7 @@ namespace HttpRequester.ViewModels
         public async Task<string> GetServerResponse()
         {
             ValidateFields();
-            using (HttpClient httpClient = new HttpClient())
+            using (HttpClient httpClient = new HttpClient() { Timeout = new TimeSpan(0, REQUEST_TIMEOUT_MINUTES, 0) })
             {
                 InitializeClientDefaultValues(httpClient);
                 UpdateRequestHeaders(httpClient);
@@ -98,13 +99,27 @@ namespace HttpRequester.ViewModels
                         httpClient.PostAsync(Url, new StringContent(requestParams, Encoding.UTF8, JSON_MEDIA_TYPE)));
                 }
                 else if (RequestType == RequestTypeEnum.PUT)
-                    response = await Task.Run(() => httpClient.DeleteAsync(Url));
+                {
+                    string requestParams = JSONHelper.Serialize<HttpParameterModel>(Parameters);
+                    httpClient.DefaultRequestHeaders.Accept.Add((new MediaTypeWithQualityHeaderValue(JSON_MEDIA_TYPE)));
+                    response = await Task.Run(() => httpClient.PutAsync(Url,new StringContent(requestParams,Encoding.UTF8, JSON_MEDIA_TYPE)));
+                }
                 else if (RequestType == RequestTypeEnum.DELETE)
                     response = await Task.Run(() => httpClient.DeleteAsync(Url));
+                else if (RequestType == RequestTypeEnum.HEAD)
+                {
+                    HttpRequestMessage hr = new HttpRequestMessage() { Method = HttpMethod.Head, RequestUri = new Uri(Url) };
+                    response = await Task.Run(() => httpClient.SendAsync(hr));
+                }
                 else throw new ArgumentException("Unknown request type");
 
                 res.AppendLine("Status: " + (int)response.StatusCode + " (" +
                     response.StatusCode.ToString() + ")");
+                //if (response.Headers.GetValues(HEADER_LAST_MOD) != null)
+                //{
+                //    string rh = response.Headers.GetValues(HEADER_LAST_MOD).FirstOrDefault();
+                //    res.AppendLine("Last modified:" + rh);
+                //}
                 res.AppendLine("Content:");
                 string content = await response.Content.ReadAsStringAsync();
                 res.AppendLine(response.Content.ReadAsStringAsync().Result);
