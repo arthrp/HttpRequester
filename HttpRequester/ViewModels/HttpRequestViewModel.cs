@@ -94,14 +94,14 @@ namespace HttpRequester.ViewModels
                 else if (RequestType == RequestTypeEnum.POST)
                 {
                     string requestParams = JSONHelper.Serialize<HttpParameterModel>(Parameters);
-                    httpClient.DefaultRequestHeaders.Accept.Add((new MediaTypeWithQualityHeaderValue(JSON_MEDIA_TYPE)));
+                    //httpClient.DefaultRequestHeaders.Accept.Add((new MediaTypeWithQualityHeaderValue(JSON_MEDIA_TYPE)));
                     response = await Task.Run(() => 
                         httpClient.PostAsync(Url, new StringContent(requestParams, Encoding.UTF8, JSON_MEDIA_TYPE)));
                 }
                 else if (RequestType == RequestTypeEnum.PUT)
                 {
                     string requestParams = JSONHelper.Serialize<HttpParameterModel>(Parameters);
-                    httpClient.DefaultRequestHeaders.Accept.Add((new MediaTypeWithQualityHeaderValue(JSON_MEDIA_TYPE)));
+                    //httpClient.DefaultRequestHeaders.Accept.Add((new MediaTypeWithQualityHeaderValue(JSON_MEDIA_TYPE)));
                     response = await Task.Run(() => httpClient.PutAsync(Url,new StringContent(requestParams,Encoding.UTF8, JSON_MEDIA_TYPE)));
                 }
                 else if (RequestType == RequestTypeEnum.DELETE)

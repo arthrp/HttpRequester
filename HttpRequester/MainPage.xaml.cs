@@ -67,7 +67,9 @@ namespace HttpRequester
 
             try
             {
+                pbRequest.Visibility = Windows.UI.Xaml.Visibility.Visible;
                 response = await HttpRequestViewModel.Instance.GetServerResponse();
+                pbRequest.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
             }
             catch (ArgumentException ex)
             {

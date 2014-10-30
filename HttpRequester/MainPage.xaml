@@ -9,6 +9,8 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <StackPanel>
+        <ProgressBar Height="10" x:Name="pbRequest" Visibility="Collapsed" IsIndeterminate="True" />
         <Pivot x:Uid="Pivot" Title="HTTP REQUESTER" x:Name="pivot" CommonNavigationTransitionInfo.IsStaggerElement="True">
             <PivotItem x:Uid="pvtiMain" x:Name="pvtiMain"
                        Margin="19,14.5,0,0"
@@ -58,5 +60,6 @@
                 </StackPanel>
             </PivotItem>
         </Pivot>
+        </StackPanel>
     </Grid>
 </Page>
